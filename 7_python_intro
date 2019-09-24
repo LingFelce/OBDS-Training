@@ -12,6 +12,39 @@
 #operators (assignment, arithmetic, comparison, logical) == equal to, != not equal to
 #if and loop (for and while)
 #use if first, then if not true go on to elif (if use just if then will run all ifs)
+
+#flow control - conditional, logical test
+number = 23
+guess = int(input('Enter an integer : '))
+if guess == number:
+    # New block starts here
+    print('Congratulations, you guessed it.')
+    print('(but you do not win any prizes!)')
+# New block ends here
+elif guess < number:
+    # Another block
+    print('No, it is higher than that')
+    # You can do whatever you want in a block ...
+else:
+    print('No, it is lower than that')
+    # you must have guessed > number to reach here
+
+#flow control - iteration, loop
+
+for i in range(1, 5):
+print(i)
+running = True
+while running:
+    guess = int(input('Enter an integer : '))
+    if guess == number:
+        print('Congratulations!')
+        # this causes the while loop to stop
+        running = False
+elif guess < number:
+    print('No, it is higher than that.')
+else:
+    print('No, it is lower than that.')
+
 #python written in code blocks (tab/four spaces indentation), not brackets like R. Style guide - PEP8
 
 #use def keyword to give name to block of statements (functions - like having separate functions.R file)
@@ -56,7 +89,25 @@ mylist=shoplist #mylist is another name for shoplist, any changes made will be t
 mylist=shoplist[:] #make a copy by doing a full slice
 
 #dictionaries like an address-book, keys associated with values, keys must be unique and immutable, not ordered (randomised for security reasons)
-#have to see example in lecture handout!
+
+ab = {
+    'David': 'david.sims@imm.ox.ac.uk',
+    'Charlie': 'charlotte.george@imm.ox.ac.uk',
+    'Spammer': 'spammer@hotmail.com'
+}
+print("David’s email is", ab['David'])
+print('There are ‘, len(ab), ‘ contacts’)
+# Returning a value
+email = ab.get(‘David’, 0)
+# Returns 0 if not found
+# Deleting a key-value pair
+del ab['Spammer']
+# Adding a key-value pair
+ab['Guido'] = 'guido@python.org'
+# Searching the keys
+if 'Guido' in ab:
+    print("Guido's address is", ab['Guido'])
+
 #make shallow copy (does not copy nested data structures)
 ab2=dict(ab)
 ab2=ab.copy()
