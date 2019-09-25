@@ -1,6 +1,6 @@
 #8_Biological algorithms - genomic file formats 24th September 2019
 
-SAM file (sequence alignment) -> BED file (chromosomal information)
+#SAM file (sequence alignment) -> BED file (chromosomal information)
 
 #don't have to git push all my files to OBDS github!
 #format string - pull out terms that you want and put them along in a single string. Use f-string
