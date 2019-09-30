@@ -41,6 +41,10 @@ Pipeline status - presence of files, time stamps
 #$zcat genes.gtf.gz | cut -f1 | uniq #look at first column (chromosomes), see how many unique occurrences on command line
 
 import gzip
+from ruffus import *
+from cgatcore import pipeline as P
+import sys
+import statistics
 
 def split_chrom(infile): #define function
     with gzip.open(infile, 'rt') as inf: #read zipped file as text
