@@ -65,6 +65,7 @@ split_chrom('test.gtf.gz') #run function
 def count_genes(infile, outfile):
     statement = '''wc -l %(infile)s > %(outfile)s''' #counts no. of lines, s specifies string. Each line = transcript
     P.run(statement) #if on cbrg have to specify job queue. Will run and save to single file per chromosome
+	#or can do len(chr1.gtf) - count number of lines in file
 
 
 @merge(count_genes,'all.average')
