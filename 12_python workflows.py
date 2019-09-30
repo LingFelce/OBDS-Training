@@ -30,6 +30,7 @@ Grouping tasks - pipelines can have many independent branches, helpful to add du
 	def full():
 	$python mapping.py make full -v 5
 Pipeline status - presence of files, time stamps
+Decorators can only be split, transform or merge (for now)
 """
 
 #Exercise
