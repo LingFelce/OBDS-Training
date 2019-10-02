@@ -1,6 +1,6 @@
+"""
 14_Alignment free RNA-Seq 2nd October 2019
 
-"""
 Kallisto pseudo alignment, skips a lot of steps - mapping, alignment, counts etc.
 For each read, finds compatible transcripts by building De-Bruijn graph from reference transcriptome.
 Bootstrapping - sample reads randomly with replacement, estimate transcript abundances, repeat 100x
