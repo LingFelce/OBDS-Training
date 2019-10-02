@@ -33,6 +33,10 @@ git branch master
 git pull
 git branch -d ling
 
+#Need to preinstall kallisto and gffread to conda environment
+conda install gffread
+conda instal kallisto
+
 from ruffus import *
 from cgatcore import pipeline as P
 import sys
