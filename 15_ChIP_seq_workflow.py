@@ -43,20 +43,22 @@ Differential binding (2 different conditions)
 Motif analysis: MEME suit, Homer motif analysis
 """
 
-#download files
-wget -q ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR159/001/SRR1592591/SRR1592591_1.fastq.gz &
-wget -q ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR159/001/SRR1592591/SRR1592591_2.fastq.gz &
+#download files in command line -q quiet & send to background
+#wget -q ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR159/001/SRR1592591/SRR1592591_1.fastq.gz &
+#wget -q ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR159/001/SRR1592591/SRR1592591_2.fastq.gz &
+#remember to check md5sum!
 
 #create soft links in same folder - used Filezilla to transfer over and edit as shell script in nano
 #have to use # at end as Windows text editor adds $ r at end of line
-ln -s /ifs/obds-training/exercises/chipseq_pipeline/SRR1592591_1.fastq.gz mm_rep2_dex_IP_1 #
-ln -s /ifs/obds-training/exercises/chipseq_pipeline/SRR1592591_2.fastq.gz mm_rep2_dex_IP _2 #
+#change name to something meaningful and easy to use regex later!
+#ln -s /ifs/obds-training/exercises/chipseq_pipeline/SRR1592591_1.fastq.gz mm_rep2_dex_IP_1.fastq.gz #
+#ln -s /ifs/obds-training/exercises/chipseq_pipeline/SRR1592591_2.fastq.gz mm_rep2_dex_IP _2.fastq.gz #
 
 #run shell script to create links with new meaningful names
-sh <shell script>
+#sh <shell script>
 
 #copy links to new own directory
-cp -d <link name> <directory>
+#cp -d <link name> <directory>
 
 """
 chipseq_pipeline.yml
@@ -77,7 +79,7 @@ from ruffus import *
 
 P.get_parameters('chipseq_pipeline.yml')
 
-@follows(mkdir('fastqc'))
+@follows(mkdir('fastqc')) #same as before, can run independently of other processes
 @transform('*.fastq.gz', regex(r'(.*).fastq.gz'),r'fastqc/\1_fastqc.html')
 def qc_reads(infile, outfile):
     statement = 'fastqc -q -t %(threads)s --nogroup %(infile)s --outdir fastqc'
@@ -85,7 +87,7 @@ def qc_reads(infile, outfile):
           job_queue  = P.PARAMS['queue'],
           job_memory = P.PARAMS['memory'])
 
-@follows(mkdir('sam'), qc_reads)
+@follows(mkdir('sam'))
 @collate('*.fastq.gz', regex(r'(.*)_[1-2].fastq.gz'), r'sam/\1.sam')
 def align_reads(infiles, outfile):
     read1, read2 = infiles
@@ -100,7 +102,7 @@ def align_reads(infiles, outfile):
           job_memory  = P.PARAMS['memory'])
 
 @follows(mkdir('bam'))
-@transform(align_reads, regex(r'sam/(.*).sam'), r'bam/\1.bam')
+@transform(align_reads, regex(r'sam/(.*).sam'), r'bam/\1.bam') #can skip this step and go straight from .fastq.gz to bam - see later
 def sort_reads(infile, outfile):
     """Sort aligned reads."""
     statement = 'samtools sort %(infile)s -o %(outfile)s --output-fmt BAM -@ %(threads)s'
@@ -126,6 +128,57 @@ def get_alignment_statistics(infile, outfile):
     P.run(statement,
           job_queue  = P.PARAMS['queue'],
           job_memory = P.PARAMS['memory'])
+    
+@follows(create_bam_file_index, mkdir('deduplicated')) #remove duplicates    
+@transform(align_reads, regex(r'bam/(.*.bam)'), r'deduplicated/\1')
+def remove_duplicates(infile, outfile):
+    stats = outfile.replace('.bam', '_marked_duplicates.txt')
+    statement = ' '.join(['picard MarkDuplicates',
+                          'I=%(infile)s',
+                          'O=%(outfile)s',
+                          'M=%(stats)s',
+                          'REMOVE_DUPLICATES=true',
+                          'REMOVE_SEQUENCING_DUPLICATES=true',
+                          'CREATE_INDEX=true'])
+    P.run(statement,
+          job_queue  = P.PARAMS['queue'],
+          job_memory = P.PARAMS['memory'])
+
+@follows(mkdir('peaks')) #call peaks - generates .narrowPeak file which is like a .bed file
+@collate(remove_duplicates, regex(r'deduplicated/(.*)_(gr|ip).bam'), r'peaks/\1_peaks.narrowPeak')
+def call_peaks (infiles, outfile):
+    treatment, control = infiles
+    file_base = outfile.replace('_peaks.narrowPeak','')
+    statement = '''macs2 callpeak -t %(treatment)s -c %(control)s -n %(file_base)s'''
+    P.run(statement,
+          job_queue  = P.PARAMS['queue'],
+          job_memory = P.PARAMS['memory'],
+          job_condaenv = 'macs2-env') #separate conda environment
+    
+#use this to combine aligning reads and sorting, so go straight from .fastq.gz to .bam
+@follows(mkdir('bam'))
+@collate('*.fastq.gz', regex(r'(.*)_[1-2].fastq.gz'), r'bam/\1.bam')
+def align_reads(infiles, outfile):
+    
+    ''' Aligns fq files using bowtie2 before conversion to bam file using
+        Samtools view. Bam file is then sorted and the unsorted bam file is replaced'''
+    
+    fq1, fq2 = infiles   
+    sorted_bam = outfile.replace('.bam', '_sorted.bam')
+    options = ''
+        
+    if P.PARAMS['bowtie2_options']:
+        options = P.PARAMS['bowtie2_options']
+    
+    cmd = '''bowtie2 -x %(bowtie2_index)s -1 %(fq1)s -2 %(fq2)s -p %(threads)s %(options)s |
+             samtools view -b - > %(outfile)s &&
+             samtools sort -@ %(threads)s -m 5G -o %(sorted_bam)s %(outfile)s &&
+             mv %(sorted_bam)s %(outfile)s'''
+
+    P.run(cmd, 
+          job_queue=P.PARAMS['queue'], 
+          job_threads=P.PARAMS['threads'])
+          
      
 if __name__ == "__main__":
     sys.exit( P.main(sys.argv) )
