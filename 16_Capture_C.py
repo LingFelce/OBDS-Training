@@ -34,4 +34,12 @@ On a single microarray, approximately a million interactions can be analyzed.
 
 Use biotinylated probes to enrich for captured sequences, don't sequence whole library, just sites of interest.
 
+See Jelena's notes:
+http://userweb.molbiol.ox.ac.uk/public/telenius/CCseqBasicManual/ppMan/CCseqBasic/2_workflow/index.html
+http://userweb.molbiol.ox.ac.uk/public/telenius/CCseqBasicManual/ppMan/CCseqBasic/DOCS/readsFragments_multipage.pdf
+http://userweb.molbiol.ox.ac.uk/public/telenius/captureManual/UserManualforCaptureCanalysis.pdf
 """
+#Capture-C pipeline exercise - files required: read1.fastq and read2.fastq, fragment.txt Hba-1 mouse globin locus
+
+
+
