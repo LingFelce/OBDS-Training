@@ -154,6 +154,14 @@ def call_peaks (infiles, outfile):
           job_queue  = P.PARAMS['queue'],
           job_memory = P.PARAMS['memory'],
           job_condaenv = 'macs2-env') #separate conda environment
+
+"""
+Next steps:
+Use bedtools merge to combine narrowPeak files
+Use awk to change narrowPeak files into .saf format
+Use featureCounts to count reads under peaks - .saf file will take place of .gft file in command, will give information on peaks,
+and use .bam file as normal to give information on counts.
+"""
     
 #use this to combine aligning reads and sorting, so go straight from .fastq.gz to .bam
 @follows(mkdir('bam'))
