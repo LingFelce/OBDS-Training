@@ -41,5 +41,8 @@ http://userweb.molbiol.ox.ac.uk/public/telenius/captureManual/UserManualforCaptu
 """
 #Capture-C pipeline exercise - files required: read1.fastq and read2.fastq, fragment.txt Hba-1 mouse globin locus
 
+#fastqc code as before
 
+#trimming using trim-galore - need to use collate decorator as need to put in reads as pair for trimming
+#flash for fast length adjustment for short reads
 
