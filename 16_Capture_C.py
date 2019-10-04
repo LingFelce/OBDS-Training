@@ -85,3 +85,74 @@ def combine_reads (infiles, outfile):
           job_queue=P.PARAMS['queue'], 
           job_threads=P.PARAMS['threads'],
           job_memory=P.PARAMS['memory'])
+    
+@follows(mkdir('digest'))          
+@transform(flash_reads, regex(r'flash/(.*)_extendedFrags.fastq.gz'), r'digest/\1_digest.fastq.gz')
+def digest(infile, outfile):
+    '''in silico restriction enzyme digest'''
+    statement = '''python digest_fastq.py -i %(infile)s -o %(outfile)s ''' #Alistair's script (see bottom)
+    P.run(statement, 
+          job_queue=P.PARAMS['queue'], 
+          job_memory=P.PARAMS['memory'])
+   
+@follows(mkdir('sam'))
+@collate(digest, regex(r'digest/(.*).fastq.gz'), r'sam/\1.sam')
+def align_reads(infiles, outfile):
+    ''' Aligns digested fq files using bowtie2, output is .sam'''
+    options = ''
+    if P.PARAMS['bowtie2_options']:
+        options = P.PARAMS['bowtie2_options'] #setting --reorder as an option
+    cmd = '''bowtie2 -x %(bowtie2_ref)s -U %(infile)s -p %(threads)s %(options)s -S %(outfile)s'''
+    P.run(cmd, 
+          job_queue=P.PARAMS['queue'], 
+          job_threads=P.PARAMS['threads'])
+   
+@follows(mkdir('ccanalyser'))
+@transform(align_reads, regex(r'sam/(.*).sam'), r'ccanalyser/\1.sam')
+def ccanalyser (infile, outfile):
+    statement = '''perl CCanalyser2.pl -f %(infile) -r %(ccanalyser_ref)s #Jelena's script
+    --genome %(ccanalyser_genome)s -o %(ccanalyser_oligo)s -s miseq 
+    --pu %(ccanalyser_pu)s --pf %(ccanalyser_pf)s''' 
+    P.run(statement,
+          job_queue=P.PARAMS['queue'], 
+          job_memory=P.PARAMS['ccanalyser_memory'])
+    
+#separate python script for in silico digest written by Alistair
+import argparse
+import os
+import sys
+import pysam
+import gzip
+import re
+
+p = argparse.ArgumentParser()
+p.add_argument('-i', '--input_fn', help='fastq file to parse')
+p.add_argument('-o', '--output', help='output file prefix', default='output.fq.gz')
+p.add_argument('-s', '--cutsite', help='Sequence of restriction site', 
+               default='GATC')
+args = p.parse_args()
+
+
+def main():
+    
+    with gzip.open(f'{args.output}', 'wb') as w:
+        
+        cut_site = re.compile(f'{args.cutsite}')
+        
+        for record in pysam.FastqFile(args.input_fn):
+            fragments = cut_site.split(record.sequence)
+            lengths = [len(frag) for frag in fragments]
+    
+            last_slice = 0
+            for ii, length in enumerate(lengths):
+                current_slice = last_slice + length
+                
+                w.write(f'@{record.name}:PE:1:{ii}\n'.encode())
+                w.write(f'{record.sequence[last_slice:current_slice]}\n'.encode())
+                w.write('+\n'.encode())
+                w.write(f'{record.quality}\n'.encode())
+                
+                last_slice = current_slice
+
+if __name__ == '__main__':
+    main()
