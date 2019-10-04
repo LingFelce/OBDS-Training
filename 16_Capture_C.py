@@ -38,6 +38,24 @@ See Jelena's notes:
 http://userweb.molbiol.ox.ac.uk/public/telenius/CCseqBasicManual/ppMan/CCseqBasic/2_workflow/index.html
 http://userweb.molbiol.ox.ac.uk/public/telenius/CCseqBasicManual/ppMan/CCseqBasic/DOCS/readsFragments_multipage.pdf
 http://userweb.molbiol.ox.ac.uk/public/telenius/captureManual/UserManualforCaptureCanalysis.pdf
+
+capturec_pipeline.yml
+queue: all.q
+threads: 12
+memory: 8G
+bowtie2:
+    options: --reorder
+    ref: /ifs/mirror/genomes/bowtie/mm10
+picard:
+    ref: /ifs/mirror/genomes/plain/mm10.fasta
+ccanalyser:
+    ref: /ifs/obds-training/exercises/capturec/mm10.txt
+    genome: mm10
+    oligo: /ifs/obds-training/exercises/capturec/fragmentmm10.txt
+    pu: "http://www.cgat.org/downloads/"
+    pf: /ifs/obds-training/lingf/week3/capture_c
+    memory: 128G
+
 """
 #Capture-C pipeline exercise - files required: read1.fastq and read2.fastq, fragment.txt Hba-1 mouse globin locus
 
@@ -108,10 +126,10 @@ def align_reads(infiles, outfile):
           job_threads=P.PARAMS['threads'])
    
 @follows(mkdir('ccanalyser'))
-@transform(align_reads, regex(r'sam/(.*).sam'), r'ccanalyser/\1.sam')
-def ccanalyser (infile, outfile):
-    statement = '''perl CCanalyser2.pl -f %(infile) -r %(ccanalyser_ref)s #Jelena's script
-    --genome %(ccanalyser_genome)s -o %(ccanalyser_oligo)s -s miseq 
+@transform(align_reads, regex(r'sam/(.*).sam'), r'ccanalyser/\1.sam') 
+def ccanalyser (infile, outfile): #Jelena's script
+    statement = '''perl CCanalyser2.pl -f %(infile) -r %(ccanalyser_ref)s #ref is DpnII cut sites throughout genome
+    --genome %(ccanalyser_genome)s -o %(ccanalyser_oligo)s -s miseq  #genome used, oligo coordinates (pull down from at least one end of fragment) and sample name
     --pu %(ccanalyser_pu)s --pf %(ccanalyser_pf)s''' 
     P.run(statement,
           job_queue=P.PARAMS['queue'], 
