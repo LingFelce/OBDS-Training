@@ -44,5 +44,44 @@ http://userweb.molbiol.ox.ac.uk/public/telenius/captureManual/UserManualforCaptu
 #fastqc code as before
 
 #trimming using trim-galore - need to use collate decorator as need to put in reads as pair for trimming
-#flash for fast length adjustment for short reads
+#FLASH (Fast Length Adjustment of SHort reads) is a very fast and accurate software tool to merge paired-end reads from 
+#next-generation sequencing experiments. FLASH is designed to merge pairs of reads when the original DNA fragments are shorter than 
+#twice the length of reads. The resulting longer reads can significantly improve genome assemblies. 
+#@collate is for collating pairs or groups; @merge is to merge all samples, irrespective of grouping
 
+import sys
+from cgatcore import pipeline as P
+from ruffus import *
+
+P.get_parameters('capturec_pipeline.yml')
+
+@follows(mkdir('fastqc'))
+@transform('*.fastq.gz', regex(r'(.*).fastq.gz'),r'fastqc/\1_fastqc.html')
+def qc_reads(infile, outfile):
+    statement = 'fastqc -q -t %(threads)s --nogroup %(infile)s --outdir fastqc'
+    P.run(statement,
+          job_queue  = P.PARAMS['queue'],
+          job_memory = P.PARAMS['memory']
+          job_threads = P.PARAMS['threads'])
+
+@follows (mkdir('trim'))
+@collate('*.fastq.gz', regex(r'(.*)_[1-2].fastq.gz'), r'trim/\1_1_val_1.fq.gz')
+def trim(infiles, outfile):
+    ''' Trim fastq files'''
+    fq1, fq2 = infiles
+    cmd = '''trim_galore --paired %(fq1)s  %(fq2)s -o trim --cores %(threads)s'''
+    P.run(cmd, 
+          job_queue=P.PARAMS['queue'], 
+          job_threads=P.PARAMS['threads'],
+          job_memory=P.PARAMS['memory'])
+    
+@follows(mkdir('flash'), trim)
+@collate ('trim/*.fq.gz', regex(r'trim/(.*)_[1-2]_.*'), r'flash/\1_extendedFrags.fastq.gz')
+def combine_reads (infiles, outfile):
+    read1, read2 = infiles
+    out_prefix = outfile.replace('_extendedFrags.fastq.gz','') #otherwise will call file out.extendedFrags.fastq.gz, want read.extendedFrags.fastq.gz
+    statement = '''flash %(read1)s %(read2)s -t %(threads)s -o %(out_prefix)s -z'''
+    P.run(statement, 
+          job_queue=P.PARAMS['queue'], 
+          job_threads=P.PARAMS['threads'],
+          job_memory=P.PARAMS['memory'])
