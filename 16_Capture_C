@@ -1,0 +1,16 @@
+"""
+16_Capture-C 4th October 2019
+
+Chromosome conformation capture techniques (often abbreviated to 3C technologies or 3C-based methods) are a set of molecular biology 
+methods used to analyze the spatial organization of chromatin in a cell. 
+These methods quantify the number of interactions between genomic loci that are nearby in 3-D space, but may be separated by many 
+nucleotides in the linear genome. Such interactions may result from biological functions, such as promoter-enhancer interactions, 
+or from random polymer looping, where undirected physical motion of chromatin causes loci to collide.
+Interaction frequencies may be analyzed directly, or they may be converted to distances and used to reconstruct 3-D structures.
+Sequence capture-based methods
+A number of methods use oligonucleotide capture to enrich 3C and Hi-C libraries for specific loci of interest.
+These methods include Capture-C, NG Capture-C, Capture-3C, and Capture Hi-C.
+These methods are able to produce higher resolution and sensitivity than 4C based methods.
+
+
+"""
