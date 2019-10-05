@@ -94,7 +94,7 @@ def trim(infiles, outfile):
           job_memory=P.PARAMS['memory'])
     
 @follows(mkdir('flash'), trim)
-@collate ('trim/*.fq.gz', regex(r'trim/(.*)_[1-2]_.*'), r'flash/\1_extendedFrags.fastq.gz')
+@collate ('trim/*.fq.gz', regex(r'trim/(.*)_[1-2]_.*'), r'flash/\1.extendedFrags.fastq.gz')
 def combine_reads (infiles, outfile):
     read1, read2 = infiles
     out_prefix = outfile.replace('_extendedFrags.fastq.gz','') #otherwise will call file out.extendedFrags.fastq.gz, want read.extendedFrags.fastq.gz
@@ -105,7 +105,7 @@ def combine_reads (infiles, outfile):
           job_memory=P.PARAMS['memory'])
     
 @follows(mkdir('digest'))          
-@transform(flash_reads, regex(r'flash/(.*)_extendedFrags.fastq.gz'), r'digest/\1_digest.fastq.gz')
+@transform(flash_reads, regex(r'flash/(.*).extendedFrags.fastq.gz'), r'digest/\1_digest.fastq.gz')
 def digest(infile, outfile):
     '''in silico restriction enzyme digest'''
     statement = '''python digest_fastq.py -i %(infile)s -o %(outfile)s ''' #Alistair's script (see bottom)
@@ -114,7 +114,7 @@ def digest(infile, outfile):
           job_memory=P.PARAMS['memory'])
    
 @follows(mkdir('sam'))
-@collate(digest, regex(r'digest/(.*).fastq.gz'), r'sam/\1.sam')
+@transform(digest, regex(r'digest/(.*).fastq.gz'), r'sam/\1.sam')
 def align_reads(infiles, outfile):
     ''' Aligns digested fq files using bowtie2, output is .sam'''
     options = ''
@@ -142,35 +142,60 @@ import sys
 import pysam
 import gzip
 import re
+import pdb
 
 p = argparse.ArgumentParser()
 p.add_argument('-i', '--input_fn', help='fastq file to parse')
 p.add_argument('-o', '--output', help='output file prefix', default='output.fq.gz')
-p.add_argument('-s', '--cutsite', help='Sequence of restriction site', 
+p.add_argument('-s', '--cutsite', help='Sequence of restriction site',
                default='GATC')
+p.add_argument('-l', '--logfile', help='filename for logfile',
+               default=sys.stdout)
 args = p.parse_args()
 
 
 def main():
-    
-    with gzip.open(f'{args.output}', 'wb') as w:
-        
-        cut_site = re.compile(f'{args.cutsite}')
-        
-        for record in pysam.FastqFile(args.input_fn):
+
+    with gzip.open(args.output, 'wb') as w:
+
+        cut_site = re.compile(args.cutsite)
+        cutsite_counter = 0
+        total_fragments = 0
+        fragment_counts = dict()
+
+        for counter, record in enumerate(pysam.FastqFile(args.input_fn)):
+
             fragments = cut_site.split(record.sequence)
-            lengths = [len(frag) for frag in fragments]
-    
-            last_slice = 0
-            for ii, length in enumerate(lengths):
-                current_slice = last_slice + length
-                
-                w.write(f'@{record.name}:PE:1:{ii}\n'.encode())
-                w.write(f'{record.sequence[last_slice:current_slice]}\n'.encode())
-                w.write('+\n'.encode())
-                w.write(f'{record.quality}\n'.encode())
-                
-                last_slice = current_slice
+            lengths = [len(frag) for frag in fragments if not frag == '']
+            
+            if len(lengths) not in fragment_counts:
+                fragment_counts[len(lengths)] = 0
+                       
+            fragment_counts[len(lengths)] += 1
+
+            if len(fragments) > 1:
+                cutsite_counter += 1
+
+                last_slice = 0
+                for ii, length in enumerate(lengths):
+                    
+                    total_fragments += 1
+
+                    current_slice = last_slice + length
+
+                    w.write(f'@{record.name}:PE1:{ii}\n'.encode())
+                    w.write(f'{record.sequence[last_slice:current_slice]}\n'.encode())
+                    w.write('+\n'.encode())
+                    w.write(f'{record.quality[last_slice:current_slice]}\n'.encode())
+
+                    last_slice = current_slice
+
+    with open(args.logfile, 'w') as w:
+        w.write(f'Records processed: {counter}')
+        w.write(f'Records with cutsites: {cutsite_counter}')
+        w.write(f'Fragments output: {total_fragments}')
+        for k, v in fragment_counts.items():
+            w.write(f'Fragments {k}: {v}')
 
 if __name__ == '__main__':
     main()
