@@ -59,6 +59,9 @@ setwd() #set working directory
 list.files() #list files in directory
 system('ls|tail') #run command line functions in R
 
+
+MCF_down_cell_cycle<-MCF_down[is.element(MCF_down$SYMBOL, cell_cycle),] #look up values from one table (cell cycle) in another (MCF_down) to get all information from row
+
 ```
 Summary of exercises in slack
 
