@@ -23,9 +23,12 @@ Attributes associated with each value eg names or other metadata - similar to py
 R is nested functions, can use tidyverse to make code look nicer e.g tibbles are tidyverse dataframes (simple and better functionality)
 
 ```{r examples}
-
 df[1] #1st column only
 df[1,] #1st row only
 df[5:10,1:2] #rows 5:10, columns 1:2
 
+df[grep("TSS", df&=$column1),] #get rows containing TSS in column 1
+
+df[df$column1 %in% c('promoter', 'enhancer'),] #rows that are enhancer or promoter values in column 1
+df[df$column1 == 'promoter' | df$column1 == 'enhancer',] #rows that are enhancer or promoter values in column 1
 ```
