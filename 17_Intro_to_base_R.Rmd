@@ -22,6 +22,10 @@ Attributes associated with each value eg names or other metadata - similar to py
 
 R is nested functions, can use tidyverse to make code look nicer e.g tibbles are tidyverse dataframes (simple and better functionality)
 
+Good resourses:
+R for datascience https://r4ds.had.co.nz/ 
+Bioconductor 2018 Workshop https://bioconductor.github.io/BiocWorkshops/r-and-bioconductor-for-everyone-an-introduction.html
+Short tutorial/refresher https://bioinformatics-core-shared-training.github.io/r-for-medics/notes.nb.html
 
 
 ```{r examples}
@@ -33,7 +37,31 @@ df[grep("TSS", df&=$column1),] #get rows containing TSS in column 1
 
 df[df$column1 %in% c('promoter', 'enhancer'),] #rows that are enhancer or promoter values in column 1
 df[df$column1 == 'promoter' | df$column1 == 'enhancer',] #rows that are enhancer or promoter values in column 1
+
+colnames(table_name)[-c(1:2)] #remove first two columns (but only shows column names, need to put within table name to get full table)
+
+#for loop in R
+for (variable in sequence){
+  Do something
+}
+
+if (i>3){
+  print('Yes')
+} else {
+  print('No')
+}
+
+#apply methods
+lapply(y,log) #list apply, do log of all values in y and return as list
+
+getwd() #get working directory
+setwd() #set working directory
+list.files() #list files in directory
+system('ls|tail') #run command line functions in R
+
 ```
+Summary of exercises in slack
+
 ```{r activity_1}
 
 vector_1 <- 1:200
@@ -48,6 +76,7 @@ number<-as.numeric(vector_2[2])
 number*4
 
 ```
+
 ```{r activity_2}
 sample_info <-  read.csv("sample_info.csv", header=TRUE, sep=',')
 df <- as.data.frame(sample_info)
@@ -58,22 +87,19 @@ df$mill_reads <- df$base_count/10000000
 barplot(df$mill_reads, names.arg=df$sample_title, cex.names = 0.5, las=2) #simple barplot, adjust font size and make x labels vertical
 
 ```
+
 ```{r activity_3}
 read_counts <- read.csv("read_counts.csv", header=TRUE, sep=',')
 summary(read_counts)
 counts <- read_counts
-counts$X <- NULL
-counts$Chr <- NULL
-counts$End <- NULL
-counts$Start <- NULL
-counts$Strand <- NULL
-counts$Length <- NULL
+counts$X <- NULL #remove column X
+counts <- counts[colnames(counts)[-c(2, 3, 4, 5, 6)]] #remove 2nd, 3rd, 4th, 5th and 6th columns
 rownames(counts)<- counts$Geneid
 counts$Geneid <-  NULL
 counts$total_gene_count <- rowSums(counts)
-new_counts <- counts[counts$total_gene_count!=0,] #keep values which don't equal 0
-sorted_counts <- new_counts[order(-new_counts$total_gene_count),] #sort be descending order
-high_genes <- head(sorted_counts, n=10) #top 10 highly expressed genes
-low_genes <- tail (sorted_counts, n=10) #bottom 10 expressed genes
+new_counts <- counts[counts$total_gene_count!=0,]
+sorted_counts <- new_counts[order(-new_counts$total_gene_count),]
+high_genes <- head(sorted_counts, n=10)
+low_genes <- tail (sorted_counts, n=10)
 
 ```
