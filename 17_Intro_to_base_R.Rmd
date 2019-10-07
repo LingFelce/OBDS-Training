@@ -22,6 +22,8 @@ Attributes associated with each value eg names or other metadata - similar to py
 
 R is nested functions, can use tidyverse to make code look nicer e.g tibbles are tidyverse dataframes (simple and better functionality)
 
+
+
 ```{r examples}
 df[1] #1st column only
 df[1,] #1st row only
@@ -31,4 +33,47 @@ df[grep("TSS", df&=$column1),] #get rows containing TSS in column 1
 
 df[df$column1 %in% c('promoter', 'enhancer'),] #rows that are enhancer or promoter values in column 1
 df[df$column1 == 'promoter' | df$column1 == 'enhancer',] #rows that are enhancer or promoter values in column 1
+```
+```{r activity_1}
+
+vector_1 <- 1:200
+vector_1 * 123
+vector_1[44]
+vector_2 <- vector_1[1:15]
+x <-  vector_2
+mean(x)
+median(x)
+vector_2 <- c('actb', 100, 3.4) #items in vector are character type
+number<-as.numeric(vector_2[2])
+number*4
+
+```
+```{r activity_2}
+sample_info <-  read.csv("sample_info.csv", header=TRUE, sep=',')
+df <- as.data.frame(sample_info)
+dim(df)
+row_5 <- df[5,]
+entry_4 <- df[4, "sample_title"]
+df$mill_reads <- df$base_count/10000000
+barplot(df$mill_reads, names.arg=df$sample_title, cex.names = 0.5, las=2) #simple barplot, adjust font size and make x labels vertical
+
+```
+```{r activity_3}
+read_counts <- read.csv("read_counts.csv", header=TRUE, sep=',')
+summary(read_counts)
+counts <- read_counts
+counts$X <- NULL
+counts$Chr <- NULL
+counts$End <- NULL
+counts$Start <- NULL
+counts$Strand <- NULL
+counts$Length <- NULL
+rownames(counts)<- counts$Geneid
+counts$Geneid <-  NULL
+counts$total_gene_count <- rowSums(counts)
+new_counts <- counts[counts$total_gene_count!=0,] #keep values which don't equal 0
+sorted_counts <- new_counts[order(-new_counts$total_gene_count),] #sort be descending order
+high_genes <- head(sorted_counts, n=10) #top 10 highly expressed genes
+low_genes <- tail (sorted_counts, n=10) #bottom 10 expressed genes
+
 ```
