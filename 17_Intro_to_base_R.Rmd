@@ -106,3 +106,11 @@ high_genes <- head(sorted_counts, n=10)
 low_genes <- tail (sorted_counts, n=10)
 
 ```
+
+```{r finding md5_checksums in list}
+md5checksum_lane1 <- read.table("P160824-md5sum(lane1).txt", header=FALSE, sep="")
+colnames(md5checksum_lane1) <- c("md5_checksum", "file_name")
+
+lane1 <- read.table("lane1.txt", header=FALSE, sep="")
+lane1_checksums<-md5checksum_lane1[is.element(md5checksum_lane1$file_name, lane1),]
+```
