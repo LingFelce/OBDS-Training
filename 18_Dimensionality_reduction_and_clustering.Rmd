@@ -1,14 +1,38 @@
 #Dimensionality reduction and clustering (statistics) 8th October 2019
 
-##Dimensionality reduction
+#Dimensionality reduction
 Many genes not interesting as don't vary a lot, or don't have enough counts - filtering needed
 Use dimensionality reduction methods to find structure in data, aid visualisation
 Unsupervised learning for finding groups of homogenous items eg PCA or t-SNE
 
-##Principal component analysis
+#Principal component analysis
 Find linear combo of variables to create principal components, maintain most variance in data
 Principal components uncorrelated (orthogonal to each other) and ordered with respect to % variance
 Assumes relationship between variables is linear
 Spectral decomposition, singular value decomposition
 Centre data first (mean centre), scale data if using different units (use correlation matrix instead of covariance matrix)
-Visualise top genes associated with principal components (PC1 or PC2)
+Visualise top genes associated with principal components (PC1 or PC2) - top/bottom loadings - proportion of variance in gene can be
+explained by PC1 or PC2.
+Can combine PCA analysis with log expression (overlay) for specific gene
+
+#t-SNE: t-Distributed Stochastic Neighbour Embedding
+visualisation of high dimensional datasets
+Non-linear dimensionality reduction, conserves structure of data
+Places cells with similar local neighbourhoods in high dimensional space together in low dimensional space
+R implementation - https://lvdmaaten.github.io/tsne
+Measure distances between all points in high dimensional space. Use normal density to measure similarity between points.
+Distant points will have low similarity values, nearby points will have large similarity values.
+Scale similarities to account for density of data. Do same for points in lower dimensional space, but with t-distribution.
+
+#Clustering
+Grouping given data points and classification into specific groups. Method of unsupervised learning.
+K-means clustering - select number of classes/groups (k)
+Initialise centre points. Distance between each point and group centre is computed. Random initialisation, may be different each time??
+May work better with larger datasets (more samples)
+Hierarchical clustering - use a metric (distance between observations) eg Euclidean distance.
+Either a bottom up or top down approach. (more commonly used in heatmaps etc - cluster dendrogram)
+
+#Notes
+ggplot doesn't like loops in R, have to add extra things. 
+ggplot likes to have data tables in wide format, so have to use melt function
+
