@@ -34,5 +34,5 @@ Either a bottom up or top down approach. (more commonly used in heatmaps etc - c
 
 #Notes
 ggplot doesn't like loops in R, have to add extra things. 
-ggplot likes to have data tables in wide format, so have to use melt function
+ggplot likes to have data tables in wide format, so have to use melt function.
 
