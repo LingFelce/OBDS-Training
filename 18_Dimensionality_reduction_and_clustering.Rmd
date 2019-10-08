@@ -129,4 +129,12 @@ colnames(dat) = c("tSNE1","tSNE2")
 ggplot(dat, aes(tSNE1,tSNE2, color=info$Tissue))+geom_point() +ggtitle("tSNE") 
 
 ```
+```{r example}
+library(plotly)
 
+#use this to make interactive plot where can hover mouse over point and get tissue information
+ggplotly(p = aut, width = NULL, height = NULL, tooltip = "all", dynamicTicks = FALSE, layerData = 1, originalData = TRUE, source = "A")
+
+aut is your autoplot object
+
+```
