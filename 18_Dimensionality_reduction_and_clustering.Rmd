@@ -1,1 +1,14 @@
-#Dimensionality reduction and clustering 8th October 2019
+#Dimensionality reduction and clustering (statistics) 8th October 2019
+
+##Dimensionality reduction
+Many genes not interesting as don't vary a lot, or don't have enough counts - filtering needed
+Use dimensionality reduction methods to find structure in data, aid visualisation
+Unsupervised learning for finding groups of homogenous items eg PCA or t-SNE
+
+##Principal component analysis
+Find linear combo of variables to create principal components, maintain most variance in data
+Principal components uncorrelated (orthogonal to each other) and ordered with respect to % variance
+Assumes relationship between variables is linear
+Spectral decomposition, singular value decomposition
+Centre data first (mean centre), scale data if using different units (use correlation matrix instead of covariance matrix)
+Visualise top genes associated with principal components (PC1 or PC2)
