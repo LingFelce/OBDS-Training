@@ -36,3 +36,97 @@ Either a bottom up or top down approach. (more commonly used in heatmaps etc - c
 ggplot doesn't like loops in R, have to add extra things. 
 ggplot likes to have data tables in wide format, so have to use melt function.
 
+```{r get data}
+raw_counts <- read.table("GTEx_subset_1000_subset.txt", header=T, sep="")
+
+info <- read.table("GTEx_subset_1000_subset_info.txt", header=T, sep="\t")
+
+```
+
+Data filtering
+```{r filter}
+
+#distribution of read counts 
+hist(as.numeric(rowSums(raw_counts)),
+     breaks = 100, main = "Expression sum per gene",
+     xlab = "Sum expression")
+abline(v=median(as.numeric(rowSums(raw_counts))),col="red")
+
+#remove genes not expressed in any sample
+keep <- rowSums(raw_counts) > 0
+counts <- raw_counts[keep,]
+
+#log2 of raw read counts
+logcounts <- log2(counts+1)
+
+#select data for top 100 genes
+select <-  order(rowMeans(counts), decreasing=T)[1:100]
+highexprgenes_logcounts <- logcounts[select,]
+
+```
+
+Principal component analysis
+
+```{r PCA}
+#transpose matrix
+data_for_PCA <- t(highexprgenes_logcounts)
+
+#centre data, no scaling
+bpc = prcomp(data_for_PCA, center=T, scale=F)
+
+library(ggfortify)
+
+#PCA plot with samples coloured by tissue
+autoplot(bpc, main="PCA plot", data = info, colour='Tissue')
+
+#which tissues the first few principal components are separating (or just look at PCA)
+
+beigenvalues = bpc$sdev^2 # eigenvalues
+beigenvectors = bpc$rotation # eigenvectors
+
+plot(beigenvalues/sum(beigenvalues) * 100,xlab="PC",ylab="% Variance explained") 
+plot(cumsum(beigenvalues)/sum(beigenvalues) * 100, xlab="PC",ylab="Cumulative % Variance explained")
+
+#top genes correlated to PC1/PC2
+library(pcaExplorer)
+library(ggplot2)
+
+hi_loadings(bpc, whichpc = 1, topN = 10, exprTable = NULL,
+            annotation = NULL, title = "Top/bottom loadings - ")
+
+hi_loadings(bpc, whichpc = 2, topN = 10, exprTable = NULL,
+            annotation = NULL, title = "Top/bottom loadings - ")
+
+
+#X-axis labels cut off so can't see full gene name - change to data frame so can use autocomplete to find gene name!
+df <- data.frame(data_for_PCA)
+df$ENSG00000131095.7 #top gene for PC1
+df$ENSG00000120885.15 #top gene for PC2
+
+#expression values per tissue
+s = data_for_PCA[,which(colnames(data_for_PCA)=="ENSG00000131095.7")]
+s2 = cbind(s,info)
+ggplot(s2, aes(Tissue,s))+ geom_boxplot(position="dodge") +geom_point(alpha=0.6, aes(group=Tissue), data=s2, position = position_dodge(width=0.75))+ylab("log Expression")+xlab("Tissue")+ggtitle("Gene GFAP") + theme(axis.text.x  = element_text(angle=90, size=8))
+
+s = data_for_PCA[,which(colnames(data_for_PCA)=="ENSG00000120885.15")]
+s2 = cbind(s,info)
+ggplot(s2, aes(Tissue,s))+ geom_boxplot(position="dodge") +geom_point(alpha=0.6, aes(group=Tissue), data=s2, position = position_dodge(width=0.75))+ylab("log Expression")+xlab("Tissue")+ggtitle("Gene CLU") + theme(axis.text.x  = element_text(angle=90, size=8))
+
+```
+
+t-SNE
+```{r tSNE}
+library("Rtsne")
+
+iris_matrix <- as.matrix(data_for_PCA)
+set.seed(42) # Set a seed if you want reproducible results
+tsne_out <- Rtsne(iris_matrix, dims = 2, perplexity = 10) # Run TSNE. Alter perplexity to change clustering
+# Show the objects in the 2D tsne representation
+#plot(tsne_out$Y,col=info$Tissue)
+
+dat = tsne_out$Y
+colnames(dat) = c("tSNE1","tSNE2")
+ggplot(dat, aes(tSNE1,tSNE2, color=info$Tissue))+geom_point() +ggtitle("tSNE") 
+
+```
+
