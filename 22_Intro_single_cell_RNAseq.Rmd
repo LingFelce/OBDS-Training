@@ -1,0 +1,28 @@
+22_Introduction 14th October 2019
+
+Basic 10x RNA-seq analysis using R
+Packages: Seurat/scran/Monocole/Pagoda2/Liger(Macosko lab)
+
+Chromium 3' Single Cell Workflow (Bielas et al Nature Communication 2017)
+10x provides Cell Ranger - summary HTML
+Cell Ranger Output - barcodes.tsv (cell containing barcodes), genes or features.tsv, matrix.mtx (total genes and total cells)
+Other tools e.g Alevin (Salmon) for alignment free single cell RNA-Seq (alternative to Cell Ranger)
+
+Basic pipeline for 10x single cell analysis:
+- reading in 3 matrices and transforming data into matrix ("gene" as a row, "barcode" or "cell" as column)
+
+- data filtering on user defined QC metrics (genes that are expressed in >=3 cells (~1% data), highly variable genes) 
+  (cells min >=200 number of detected genes per cell)
+  (genes from mitochondrial or ribosomal genes? Should be low proportion)
+  QC metrics: identify low quality cells - Ilicic et al Genome Biology 2016
+
+- data normalisation (removing cell specific biases) - Seurat global scaling normalisation, Scater/scran small datasets
+
+- finding highly variable genes and scale data
+
+- remove confounding factors (eg batch, gender, cell size, cell cycle). Remove cell cycle phases especially for immune cell data,
+  otherwise data will cluster by phases rather than actual sample. Don't always have to regress out, dependent on analysis type.
+
+- dimension reduction (PCA plot - ICA, CCA)
+
+- 

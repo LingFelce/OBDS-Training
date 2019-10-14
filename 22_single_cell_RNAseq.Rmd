@@ -1,2 +1,0 @@
-Basic 10x RNA-seq analysis using R
-Packages: Seurat/scran/Monocole/Pagoda2/Liger(Macosko lab)
