@@ -23,6 +23,10 @@ Basic pipeline for 10x single cell analysis:
 - remove confounding factors (eg batch, gender, cell size, cell cycle). Remove cell cycle phases especially for immune cell data,
   otherwise data will cluster by phases rather than actual sample. Don't always have to regress out, dependent on analysis type.
 
-- dimension reduction (PCA plot - ICA, CCA)
+- dimension reduction (PCA plot - ICA, CCA) - p values to see which PC is significant
 
-- 
+- clustering
+
+- tSNE
+
+- find differentially expressed genes between clusters
