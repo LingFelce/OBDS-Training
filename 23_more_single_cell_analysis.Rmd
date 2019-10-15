@@ -15,3 +15,30 @@ Cell level - cluster analysis, trajectory analysis, compositional analysis, meta
 Gene level - differential expression analysis, gene set analysis, gene regulatory networks
 
 Clustering - https://cran.r-project.org/web/packages/clustree/vignettes/clustree.html
+
+# Files and data for exercises saved in OBDS Training folder on Desktop (on laptop)
+
+# Exercise 1: use clustertree to evaluate cluster resolutions for package example data or use the PBMC 3k data from Seurat
+# (clustering already done in Seurat object)
+
+# can view summary of data and resolutions available
+head(pbmc[[]])
+
+# by default only have 0.5 resolution (saved under metadata) - use for loop to set more resolutions of 0.1 step
+for (ii in seq(0.1, 1, 0.1)){
+  pbmc = FindClusters(object = pbmc, resolution = ii)
+}
+
+# this will now be in metadata - can cluster using clustree at different resolutions
+# use this to select ideal resolution
+clustree(pbmc, prefix="RNA_snn_res.")
+
+# Numbers in cluster tree relate to new.cluster.ids
+
+# Exercise 2: Sub-cluster annotated clusters
+# probably look at Alistair's code?
+
+
+# Exercise 3:
+# see above
+
