@@ -82,6 +82,7 @@ CombinePlots(plots=list(p1, p2), ncol=2)
 
 
 # Exercise 3: Mapping of human onto mouse data (Alistair's code)
+# Alignment from https://satijalab.org/seurat/v3.1/integration.html
 # Imports
 ```R
 library(tidyverse)
@@ -108,7 +109,6 @@ gene_symbol_conversion = getLDS(attributes = c("hgnc_symbol"),
                          martL = mouse, 
                          uniqueRows=T)
 ```
-
 
 ```R
 head(gene_symbol_conversion)
@@ -146,7 +146,7 @@ sce_mouse_count = sce_mouse_count %>%
 sce_mouse_count = column_to_rownames(sce_mouse_count, var = 'HGNC.symbol')
 ```
 
-# Generate a new SCE object
+# Generate a new SCE object - converted mouse symbols to human symbols
 ```R
 sce_mouse_new = SingleCellExperiment(assays = list(counts = as.matrix(sce_mouse_count)),
                                      colData = colData(sce_mouse))
@@ -154,3 +154,44 @@ sce_mouse_new = SingleCellExperiment(assays = list(counts = as.matrix(sce_mouse_
 ```R
 sce_mouse_new
 ```
+# Calculating log counts
+libsizes <- colSums(sce_mouse_count)
+size.factors <- libsizes/mean(libsizes)
+logcounts(sce_mouse_new) <- log2(t(t(sce_mouse_count)/size.factors) + 1)
+assayNames(sce_mouse_new)
+
+# Making Seurat object and combining to list
+
+so_mouse = as.Seurat(sce_mouse_new)
+so_human = as.Seurat(sce_human)
+
+so_human@meta.data$organism = "human"
+so_mouse@meta.data$organism = "mouse"
+
+so_list = c(so_mouse, so_human)
+
+for (ii in 1:length(so_list)){
+    so_list[[ii]] <- NormalizeData(so_list[[ii]], verbose = FALSE)
+    so_list[[ii]] <- FindVariableFeatures(so_list[[ii]], selection.method = "vst", 
+                                         nfeatures = 2000, verbose = FALSE)
+}
+
+# Integrate data
+so_anchors <- FindIntegrationAnchors(object.list = so_list, dims = 1:30, )
+so_integrated <- IntegrateData(anchorset = so_anchors, dims = 1:30)
+
+# Process integrated data
+DefaultAssay(so_integrated) <- "integrated"
+so_integrated <- ScaleData(so_integrated, verbose = FALSE)
+so_integrated <- RunPCA(so_integrated, npcs = 30, verbose = FALSE)
+so_integrated <- RunUMAP(so_integrated, reduction = "pca", dims = 1:30)
+
+# plot combined data
+Idents(so_integrated) = 'cell_type1'
+p1 = DimPlot(so_integrated, reduction = 'umap', group.by = "organism", 
+             label.size=4, repel= TRUE)
+p1
+
+p2 = DimPlot(so_integrated, reduction = 'umap', group.by = "cell_type1", 
+             label = TRUE, label.size=4, repel= TRUE)
+p2
