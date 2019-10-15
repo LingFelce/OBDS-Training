@@ -37,8 +37,120 @@ clustree(pbmc, prefix="RNA_snn_res.")
 
 # Exercise 2: Sub-cluster annotated clusters
 # probably look at Alistair's code?
+# https://satijalab.org/seurat/essential_commands.html - object interaction tab
+
+library(Seurat)
+library(SingleCellExperiment)
+library(tidyverse)
+
+# read file in
+baron_human <- readRDS(file="baron-human.rds")
+
+# create Seurat object
+baron.seurat <- as.Seruat(baron_human)
+
+# normalise data
+baron.seurat <- NormalizeData(object=baron.seurat, normalization.method="LogNormalize", scale.factor=10000)
+
+# find variable features
+baron.seurat <- FindVariablesFeatures(baron.seurat)
+
+# centering and scaling data matrix
+baron.seurat <- ScaleData(baron.seurat)
+
+# get cell identity classes (dataset already annotated)
+Idents(baron.seurat) <- "cell_type1"
+levels(x=baron.seurat)
+
+# subset Seurat object based on identity class
+acinar <- subset(x=baron.seurat, idents="acinar")
+acinar <- FindVariableFeatures(acinar, selection.method="vst", nfeatures=2000)
+top10 <- head(VariableFeatures(acinar), 10)
+
+plot1 <- VariableFeaturePlot(acinar)
+plot2 <- LabelPoints(plot=1, points=top10, repel=T)
+
+CombinePlots(plots=list(plot1, plot2))
+
+acinar <- RunTSNE(acinar, dims=1:10)
+p1 <- TSNEPlot(acinar)
+
+acinar <- RunUMAP(acinar, dims=1:10, label=T)
+p2 <- DimPlot(acinar, reduction="umap")
+
+CombinePlots(plots=list(p1, p2), ncol=2)
 
 
-# Exercise 3:
-# see above
+# Exercise 3: Mapping of human onto mouse data (Alistair's code)
+# Imports
+```R
+library(tidyverse)
+library(Seurat)
+library(biomaRt)
+```
 
+# Functions
+# Load Data
+```R
+sce_mouse = readRDS('baron-mouse.rds')
+sce_human = readRDS('baron-human.rds')
+```
+# Get gene symbols from biomart
+```R
+human = useMart("ensembl", dataset = "hsapiens_gene_ensembl")
+mouse = useMart("ensembl", dataset = "mmusculus_gene_ensembl")
+ 
+gene_symbol_conversion = getLDS(attributes = c("hgnc_symbol"), 
+                         filters = "hgnc_symbol", 
+                         values = rownames(sce_human),
+                         mart = human, 
+                         attributesL = c("mgi_symbol"), 
+                         martL = mouse, 
+                         uniqueRows=T)
+```
+
+
+```R
+head(gene_symbol_conversion)
+```
+# Take the counts table from the singleCellExperiment object
+```R
+sce_mouse_count <- counts(sce_mouse)
+```
+
+# Convert counts table to dataframe and merge with the conversion table generated from biomart
+Here I'm merging on the mouse symbols
+
+```R
+df_sce_mouse_count = rownames_to_column(as.data.frame(sce_mouse_count), var='symbol')
+sce_mouse_count = merge(df_sce_mouse_count, gene_symbol_conversion, by.x='symbol', by.y='MGI.symbol')
+```
+
+# Gene symbols have duplicates therefore need to aggregate the values for the duplicates together
+
+To do this: 
+* Drop the first column (contains the original rownames)
+* Group by the human symbol
+* Calculate the mean for all of the columns that are aggregated in the groupby
+(This function takes a long time to run)
+
+```R
+sce_mouse_count = sce_mouse_count[,-1]
+sce_mouse_count = sce_mouse_count %>%
+                  group_by(HGNC.symbol) %>%
+                  summarise_all(mean) 
+```
+
+# Convert the human gene symbol to rownames
+```R
+sce_mouse_count = column_to_rownames(sce_mouse_count, var = 'HGNC.symbol')
+```
+
+# Generate a new SCE object
+```R
+sce_mouse_new = SingleCellExperiment(assays = list(counts = as.matrix(sce_mouse_count)),
+                                     colData = colData(sce_mouse))
+```
+```R
+sce_mouse_new
+```
