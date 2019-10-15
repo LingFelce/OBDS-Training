@@ -1,0 +1,17 @@
+Stages of data processing and appropriate downstream applications
+Measured:
+  Raw - statistical testing (differential gene expression)
+  Normalised (+ log transformed)
+Corrected:
+  Corrected (technical) - visual comparison of data
+  Corrected (bioogical) - pre-processing for trajectory inference
+Reduced:
+  Featured selected - visualisation, trajectory inference
+  Dimensionality reduced - visualisation, clustering, trajectory inference
+
+Downstream analyses after QC and normalisation:
+Cell level - cluster analysis, trajectory analysis, compositional analysis, metastable states,
+  cluster annotation, gene expression dynamics
+Gene level - differential expression analysis, gene set analysis, gene regulatory networks
+
+Clustering - https://cran.r-project.org/web/packages/clustree/vignettes/clustree.html
