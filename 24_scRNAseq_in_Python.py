@@ -29,4 +29,4 @@ Case study used in tutorial - Lineage tracking reveals dynamic relationships of 
 %matplotlib inline
 
 #anndata tutorial and colorectal cancer tutorial (iPython notebooks in Jupyter Lab)
-#anndata tutorial as html file - type up code!
+#anndata tutorial and colorectal cancer tutorial as html files - type up code!
