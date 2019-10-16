@@ -24,7 +24,9 @@ Case study used in tutorial - Lineage tracking reveals dynamic relationships of 
 	Smart-Seq2 protocol
 	Average 1.25 million unique read
 	MSI/MSS response to checkpoint inhibition
-
-
 """
+#lets you put plots in Jupyter Lab/Notebook along with code
+%matplotlib inline
 
+#anndata tutorial and colorectal cancer tutorial (iPython notebooks in Jupyter Lab)
+#anndata tutorial as html file - type up code!
