@@ -79,9 +79,15 @@ bedtools merge # for example alignments (narrowPeaks) from ChIP-Seq - would need
 bedtools merge -i exons.bed | head -n 20 # will not save over original file, only output to terminal
 bedtools complement # For ChIP-seq peaks, may want to know which regions of the genome are not bound by the factor assayed
 
-
-
-
-
-
-
+bedtools genomecov
+# By default, bedtools genomecov will compute a histogram of coverage for the genome file provided. The default output format is as follows:
+# 1. chromosome (or entire genome)
+# 2. depth of coverage from features in input file (eg number of exons that overlap with genomic region)
+# 3. number of bases on chromosome (or genome) with depth equal to column 2.
+# 4. size of chromosome (or entire genome) in base pairs
+# 5. fraction of bases on chromosome (or entire genome) with depth equal to column 2.
+bedtools genomecov -i exons.bed -g genome.txt
+chr1	0	241996316	249250621	0.970896 # 97% of chromosome 1 have no overlapping exons
+chr1	1	4276763	249250621	0.0171585 # 1.7% of chromosome 1 has 1 overlapping exon
+chr1	2	1475526	249250621	0.00591985 # 0.59% of chromosome 1 has 2 overlapping exons
+chr1	3	710135	249250621	0.00284908 # ... and so on ...
