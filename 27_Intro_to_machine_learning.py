@@ -46,6 +46,7 @@ Machine learning vs stats:
   and how it was generated (fewer checks).
   
 Machine learning exercise on single cell data done in Jupyter Lab - export to HTML.
+Classify cell types in human PBMCs using machine learning
 
 """
 !date
