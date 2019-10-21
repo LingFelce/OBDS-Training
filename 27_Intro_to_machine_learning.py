@@ -45,4 +45,6 @@ Machine learning vs stats:
   ML - focused on accurate prediction and speed, deal with huge datasets, less interested in understanding underlying data
   and how it was generated (fewer checks).
   
+Machine learning exercise on single cell data done in Jupyter Lab - export to HTML.
+
 """
