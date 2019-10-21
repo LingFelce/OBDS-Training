@@ -200,3 +200,5 @@ ax2 = plt.subplot (1, 2, 2) # plot on axis 2; 1 row, 2 columns, 2nd plot
 umap1 = sns.scatterplot(x=0, y=1, hue="cell_type", data=embedding, ax = ax1, hue_order=data_sets).set_title("True Labels")
 umap2 = sns.scatterplot(x=0, y=1, hue=all_predicted_labels, data=embedding, ax = ax2, hue_order=data_sets).set_title("Predicted Labels")
 
+# 3/4 of data used for training, so true v predicted labels will look quite similar!
+
