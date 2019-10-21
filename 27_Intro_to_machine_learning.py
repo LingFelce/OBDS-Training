@@ -64,7 +64,7 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsClassifier
-from sklearn.gaussian_process import GaussianProcessClassifier
+# from sklearn.gaussian_process import GaussianProcessClassifier - don't bother, takes ages!
 from sklearn.metrics import confusion_matrix
 
 #makes plots display nicely in notebook
