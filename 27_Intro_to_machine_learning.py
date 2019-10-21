@@ -48,3 +48,154 @@ Machine learning vs stats:
 Machine learning exercise on single cell data done in Jupyter Lab - export to HTML.
 
 """
+!date
+!pwd
+!conda env list | grep '*'
+!python --version
+
+import os
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+import umap
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.gaussian_process import GaussianProcessClassifier
+from sklearn.metrics import confusion_matrix
+
+#makes plots display nicely in notebook
+%matplotlib inline 
+
+# Create labels vector
+data_sets = os.listdir("Sep_data")
+# Read in all files and create single list (all files joined together)
+allcells = [pd.read_csv("Sep_data/"+i) for i in data_sets]
+# Change to dataframe - rows are individual cells 10 cell types x 400 cells, columns are genes
+df = pd.concat(allcells)
+
+# Use umap with 20 neighbours to get lower dimensions for plotting
+# want reduced representation of data
+# Create a data frame with umap dimensions 
+reducer = umap.UMAP(n_neighbors=20)
+embedding = reducer.fit_transform(df)
+embedding.shape
+# should have 4000 samples, 2 feature columns as 2D
+
+# Create vector containing names of cell types
+label_names = np.repeat((data_sets),400)
+print(label_names)
+
+# Convert embedding to dataframe, add column describing cell type to table
+embedding = pd.DataFrame(embedding)
+embedding["cell_type"] = label_names
+embedding.shape
+
+# Plot Umap using seaborn scatterplot and colour by cell type
+plt.figure(figsize=(10,10))
+pbmc_umap = sns.scatterplot(x=0, y=1, hue="cell_type", data=embedding)
+
+# use sklearn.model_selection.train_test_split 
+# Split the data and the labels into 0.25 test data
+# sklearn.model_selection.train_test_split(*arrays, **options)
+
+df_train, df_test, names_train, names_test = train_test_split(df, label_names, test_size=0.25)
+
+# training is 3000 cells, test is 1000 cells
+
+# Train the Decision Tree Classifier
+clf = DecisionTreeClassifier()
+# Fit the training data with the classifier. We are using the default parameters
+clf = clf.fit(df_train, names_train)
+
+# score accuracy of fitted model
+clf.score(df_train, names_train)
+# 1.0
+
+# see if model works for test data, score accuracy
+clf.score(df_test, names_test)
+# 0.682 - model doesn't work as well for test data
+
+# train random forest
+clf_forest = RandomForestClassifier() 
+clf_forest = clf_forest.fit(df_train, names_train)
+
+# score accuracy of fitted model
+clf_forest.score(df_train, names_train)
+# 0.997
+
+# score accuracy of model for test data
+clf_forest.score(df_test, names_test)
+# 0.675 - worse than before!
+
+# change number of trees used
+clf_forest = RandomForestClassifier(n_estimators=250) 
+clf_forest = clf_forest.fit(df_train, names_train)
+# score accuracy of fitted model
+clf_forest.score(df_train, names_train)
+
+# score accuracy of model for test data
+clf_forest.score(df_test, names_test)
+# 0.83 - improved!
+
+# random forest can calculate importance for each feature (genes) it uses to classify
+feature_importances = pd.DataFrame(clf_forest.feature_importances_, index=df_train.columns, columns=['importance'])
+
+feature_importances #2 columns with gene names and numerical value for importance, sorted alphabetically by gene name
+
+# sort by importance, descending order
+feature_importances.sort_values('importance', ascending=False)
+# top genes are markers for cell types
+
+clf_neighbors = KNeighborsClassifier(n_neighbors=1) # default n_neighbors=5; lowering no. of clusters increases accuracy
+clf_neighbors = clf_neighbors.fit(df_train, names_train)
+# score accuracy of fitting
+clf_neighbors.score(df_train, names_train)
+# 1.0
+
+# score accuracy of test data
+clf_neighbors.score(df_test, names_test)
+# 0.703 (not as good as random forest)
+
+# calculate confusion matrix (will be array) - run on test data
+predicted_labels = clf_forest.predict(df_test)
+cm = confusion_matrix(names_test, predicted_labels)
+predicted_labels[:10] # can see is jumbled up compared to actual labels
+
+# convert to pandas data frame to add column and row names
+cm_df = pd.DataFrame(cm, index = data_sets, columns=data_sets)
+cm_df
+# see if predicted data matches up with correct names, should be diagonal line with high values
+# if using all data then if matched perfectly should have 400 along diagonal
+# algorithm does poorly with naive_cytotoxic and cd4_t_helper (and a few others)
+
+# redo UMAP on df_test
+reducer_test = umap.UMAP(n_neighbors=20)
+embedding_test = reducer.fit_transform(df_test)
+embedding_test.shape
+
+# add names
+embedding_test = pd.DataFrame(embedding_test)
+embedding_test["cell_type"] = names_test
+embedding_test.shape
+
+# Umap for test data
+plt.figure(figsize=(20,10))
+ax1 = plt.subplot(1, 2, 1) # plot on axis 1; 1 row, 2 columns, 1st plot
+ax2 = plt.subplot (1, 2, 2) # plot on axis 2; 1 row, 2 columns, 2nd plot
+umap1 = sns.scatterplot(x=0, y=1, hue=names_test, data=embedding_test, ax = ax1, hue_order=data_sets).set_title("True Labels")
+umap2 = sns.scatterplot(x=0, y=1, hue=predicted_labels, data=embedding_test, ax = ax2, hue_order=data_sets).set_title("Predicted Labels")
+
+# plot Umaps for total data
+
+all_predicted_labels = clf_forest.predict(df)
+
+# Umap for all data
+plt.figure(figsize=(20,10))
+ax1 = plt.subplot(1, 2, 1) # plot on axis 1; 1 row, 2 columns, 1st plot
+ax2 = plt.subplot (1, 2, 2) # plot on axis 2; 1 row, 2 columns, 2nd plot
+umap1 = sns.scatterplot(x=0, y=1, hue="cell_type", data=embedding, ax = ax1, hue_order=data_sets).set_title("True Labels")
+umap2 = sns.scatterplot(x=0, y=1, hue=all_predicted_labels, data=embedding, ax = ax2, hue_order=data_sets).set_title("Predicted Labels")
+
