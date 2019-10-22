@@ -78,3 +78,61 @@ https://colab.research.google.com/drive/1SRHe_SXmKeXImNBR6tnhFQ3eThM4-iZu#scroll
 You can run the tutorial in this colab notebook or checkout (and clone) the github repository 
 (https://github.com/rschwess/tutorial_dl_for_genomics). From there you can either run everything in an interactive python or 
 ipython session or (especially later when optimizing) just adjust and run python dl_intro.py in the terminal.
+
+Useful things from tutorial:
+
+INPUT
+# Check Data Layout ###########################
+
+# check lines per set
+echo "Numbers:"
+wc -l ./data/pwm*
+
+# check data format
+echo -ne "\nFormat\n"
+head -n 3 ./data/pwm_seq_200bp_test_set.txt
+
+# check class representation
+echo -ne "\nClass Representations:\n"
+
+echo -ne "\nTraining:\n"
+cut -f 1 ./data/pwm_seq_200bp_train_set.txt | sort | uniq -c # count number of occurrences of 0, 1, 2 and 3
+echo -ne "\nTest:\n"
+cut -f 1 ./data/pwm_seq_200bp_test_set.txt | sort | uniq -c
+echo -ne "\nValidation:\n"
+cut -f 1 ./data/pwm_seq_200bp_valid_set.txt | sort | uniq -c
+
+OUTPUT
+Numbers:
+   1000 ./data/pwm_seq_200bp_test_set.txt
+  38000 ./data/pwm_seq_200bp_train_set.txt
+   1000 ./data/pwm_seq_200bp_valid_set.txt
+  40000 total
+
+Format # lines are numbered based on class number
+3	ATGGCTGATAATGACGATTGTACAGATGGTGGATGAGATTGCCTCGTCCCGGCAGCATTACCCCCTGGTGGCAACGGCC
+1	GCAGGCATTATGAGGTAATAAACTCAGCGCGTGTTGAGATAAGATTCTAAGCGGCGCGCGCGCGCGACCGCGAGAAGTG
+1	GGCGCGCCTGGCATTTCTTAGAGAGGCGCGCAATACAACGAGAATCACCTAGAAGCCGTGTCTGTTGCTTATCACCGTT
+
+Class Representations:
+
+Training:
+   9489 0
+   9513 1
+   9508 2
+   9490 3
+
+Test:
+    268 0
+    237 1
+    243 2
+    252 3
+
+Validation:
+    243 0
+    250 1
+    249 2
+    258 3
+
+Motif graphs - ATCG bases, weights along x axis. Removes any negative weights. The larger the letter (and if letter is on top of another)
+the greater the weight is. Can manually type motifs into Jaspar 2016 website to see if match any existing motifs.
