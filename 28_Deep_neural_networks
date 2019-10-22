@@ -42,6 +42,34 @@ Convolutional networks for DNA
   
 Convolutional neural networks in genomics
   chromatin feature networks - transcription factor binding sites, open chromatin, histone marks
-  apply ~300 filters for first layer - work out number of filters and actual values by iteration
+  apply ~300 filters for first layer - work out number of filters and actual values by iteration. Multiple layers
   scan genome every ~1kb
+  example - Angermueller et al. 2016
+  need minimum 10,000s data points for deep learning to avoid overfitting, otherwise just use random forests
+
+Interpretation - less straight forward!
+  feature importance scores (like random forest)
+  pertubation based (compute perturbation compared to reference sequence for each base)-> importance scores and pertubation impact
+  backpropagation based - similar to above but will get score for chunk of sequence rather than for each base
+  
+Learning strategy
+  single task (one output - info on one transcription factor) 
+  multitask (two outputs, info on two transcription factors)
+  multimodal (two inputs, DNA and info on chromatin accessibility) 
+  transfer learning (two inputs, DNA sequence and three outputs - three transcription factors. Use pre-existing model made with 
+  training set to find different transcription factor)
+  
+Practical aspects
+  Under-fitting (too simple to explain variance) v over-fitting (force fitting - too good to be true)
+  Under-fitting leads to high bias and low variance - predictions will be too close to each other
+  Over-fitting leads to high variance and low bias
+  Train, validation and test sets (plus cross-validation if low on data points) - usually 10% of total data set (or completely new set)
+  Stratify sets so all variables representative across all three sets
+  Cross-validation - use same data set but change which bit is training and which is test each time - separate model each time,
+  take average final measure of performance (rather than inputting same data into same model multiple times)
+  
+Prevent overfitting - optimise regularisation (neuronal/node dropout - force model to learn redundant pathways), use more data, 
+early stopping (training rounds/number of iterations), ensemble learning
+Prevent underfitting - increase complexity of model (more filters, make filters bigger, more layers), use more data
+
   
