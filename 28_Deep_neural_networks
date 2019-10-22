@@ -72,4 +72,4 @@ Prevent overfitting - optimise regularisation (neuronal/node dropout - force mod
 early stopping (training rounds/number of iterations), ensemble learning
 Prevent underfitting - increase complexity of model (more filters, make filters bigger, more layers), use more data
 
-  
+Link to tutorial (from github Colab notebook https://colab.research.google.com/drive/1SRHe_SXmKeXImNBR6tnhFQ3eThM4-iZu#scrollTo=59DLQSAO7PBm)
