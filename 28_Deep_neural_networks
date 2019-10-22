@@ -1,0 +1,47 @@
+Deep neural networks in genomics - 22nd October 2019
+
+Deep learning in genomics - Zou et al Nature Genetics 2019 (base calling etc)
+
+Neural networks - probability modelled by sigmoidal curve (0 for false, 1 for true)
+Tweak parameters to get best predictions (Input data - observations as training set)
+Create different networks/pathways to combine parameters to get single output (non-linear) - prediction
+
+Non-linear models - more power - Gokcen Nature Reviews Genetics 2019 (https://www.nature.com/articles/s41576-019-0122-6)
+(lots of figures from presentation are from this paper!)
+Single-layer neural network (logistic regression) v multilayer neural network
+Non-linear activation - taking something linear and making it non-linear (remove values below 0?)
+Optimise parameters; minimise loss function l by calculating gradient (dl/d0 - differentiation) in 2D
+
+Training process:
+  start with random parameters
+  take batch of inputs
+  calculate predictions
+  calculate performance (loss)
+  calculate gradient for every parameter
+  adjust parameters along gradient
+go back to 2. until no noticeable improvement in performance
+
+Training set, validation set and test set
+Validation set used to monitor for performance loss eg overfitting (don't want to memorise training set, want to be more generalised)
+
+Network types (and input examples)
+  fully connected (number of k-mer matches)
+  convolutional (DNA, a.a sequence, image)
+  recurrent (DNA, aa.sequence, time)
+  graph convolutional (protein-protein network, protein structure)
+  
+Convolutional networks for image analysis
+  Convert 4x4 grid of greyscale values into single value by applying filter (can parameterise)
+  Use for edge detection (use Sobel operator as filter)
+  More complexity when have deeper layers
+  
+Convolutional networks for DNA
+  apply filter to DNA sequence - hot coded sequence - transform DNA sequence into binary sequence 
+  (table of 4 rows by x columns where x = length of sequence)
+  score - how well does motif match particular sequence? Remove all negative values before continuing to next layer
+  
+Convolutional neural networks in genomics
+  chromatin feature networks - transcription factor binding sites, open chromatin, histone marks
+  apply ~300 filters for first layer - work out number of filters and actual values by iteration
+  scan genome every ~1kb
+  
