@@ -74,3 +74,7 @@ Prevent underfitting - increase complexity of model (more filters, make filters 
 
 Link to tutorial (from github Colab notebook deep learning genomics intro - free Jupyter notebook that runs on cloud,
 https://colab.research.google.com/drive/1SRHe_SXmKeXImNBR6tnhFQ3eThM4-iZu#scrollTo=59DLQSAO7PBm)
+
+You can run the tutorial in this colab notebook or checkout (and clone) the github repository 
+(https://github.com/rschwess/tutorial_dl_for_genomics). From there you can either run everything in an interactive python or 
+ipython session or (especially later when optimizing) just adjust and run python dl_intro.py in the terminal.
