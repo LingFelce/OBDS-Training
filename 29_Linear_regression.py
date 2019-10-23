@@ -28,4 +28,7 @@ Can do simple linear regression in Prism, or can use website for multiple regres
 
 Limitations - only describes linear relationships, sensitive to outliers, data must be independent
 
+Can do git clone and then add https:// link to pull down git repository (all files and folders) - have to do in git folder/repository
+in terminal?
+
 """
