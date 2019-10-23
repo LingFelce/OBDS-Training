@@ -32,3 +32,4 @@ Can do git clone and then add https:// link to pull down git repository (all fil
 in terminal?
 
 """
+# link to python notebook tutorial (also have exported to HTML) https://github.com/dwaithe/linear_regression_practical
