@@ -9,4 +9,13 @@ Artificial intelligence vs machine learning
 
 Exercises using iris dataset from sklearn, done in Jupyter Lab (export at HTML)
 
+Extra notes on Lance's work:
+
+LanceOtron
+https://lanceotron.molbiol.ox.ac.uk/
+
+De Novo Peak Call - calls peaks from ATAC or ChIP-Seq datasets
+Uses CGAT cluster but from web interface
+Have to sign up for an account
+
 """
