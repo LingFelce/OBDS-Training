@@ -26,3 +26,17 @@ G4-seq - high throughput sequencing of DNA G-quadruplex structures in human geno
 Dynamic process so may not always be able to detect it physiologically in cell, so better to use sequence to predict sites
 Feature engineering: 209 features - quadparser motif, extended PQS, 5'-flank and 3'-flank sequence information
 Data partition for machine learning - 30% testing and 70% training
+Feature importance - optimise number of features to avoid overfitting to training set, remove less important features
+  - feature example - in RNA-Seq would be genes
+Number of features, number of samples, performance metric, interaction depth, min node size, bag fraction, learning rate, no. of trees,
+  best performance (accuracy? RMSE - root mean square error?)
+Cross validation within training set, repeated (twice - full training data shuffled) 3-fold cross validation. Subtraining on subset of training set to avoid bias
+Then use entire training dataset, without any cross validation cycles
+Apply model to pure test set - this RMSE is the one that should be reported for publication
+
+R packages - tensorflow, keras, caret.
+Caret package http://topepo.github.io/caret/index.html
+GBM R library package is xgboost
+
+Random seed - if random then will get different results each time. If specify seed, then can repeat and get same results
+  (resets behaviour). Important for reproducibility
