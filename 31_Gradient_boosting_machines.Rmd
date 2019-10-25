@@ -36,6 +36,7 @@ Apply model to pure test set - this RMSE is the one that should be reported for 
 
 R packages - tensorflow, keras, caret.
 Caret package http://topepo.github.io/caret/index.html
+  - caret is compatible with many models, just need to specify method in train() e.g xgbTree (GBM), Random Forests etc.
 GBM R library package is xgboost
 
 Random seed - if random then will get different results each time. If specify seed, then can repeat and get same results
