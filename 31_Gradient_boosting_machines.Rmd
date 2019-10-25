@@ -1,0 +1,28 @@
+# Gradient Boosting Machines 25th October 2019
+
+Alternative to deep learning - lots of decision trees - complex graphs, more simple processes inside
+GBM good for linear and non-linear, dense or sparse data -
+Training sample and training observation - supervised learning to produce model
+Decision tree branches based on decisions on features (feature engineering)
+Hyperparameters (fixed, find by iteration) - interaction depth (e.g 6 branches) and minimum node size (e.g 60 datapoints in final leaf)
+  - need to be defined properly to avoid overfitting
+Interactive example: http://www.r2d3.us/visual-intro-to-machine-learning-part-1/
+Should have multiple independent trees rather than being dependent on single decision tree - use ensemble of trees using 
+  different parameters to answer same question/give same prediction - known as CART Ensemble
+  New hyperparameter - number of trees in ensemble
+Apply gradient boosting to decision trees 
+Feed in observation residuals (observation minus prediction = difference or gradient) from first tree into second tree
+Third tree would have residuals of observation minus prediction from 1st and 2nd tree - continuously looking at differences (gradients)
+  in observed value and prediction in subsequent trees.
+Additional hyperparameters - learning rate (shrinkage) and bag fraction (subsample ratio - separate training data randomly on subsequent
+  trees to avoid overfitting to training set)
+Multiply prediction from first tree by learning rate (usually small value e.g 0.01) so gradient used for next tree doesn't seem so big
+With small learning rate, neighbouring trees target very similar objectives, enhance prediction similar to ensembling method
+Ensemble method - multiple trees with starting with different parameters and different forks, but then have additional trees underneath
+  with gradients etc.
+
+Example of use of GBM - sequence-only prediction of DNA G-quadruplex formation in genomes
+G4-seq - high throughput sequencing of DNA G-quadruplex structures in human genome
+Dynamic process so may not always be able to detect it physiologically in cell, so better to use sequence to predict sites
+Feature engineering: 209 features - quadparser motif, extended PQS, 5'-flank and 3'-flank sequence information
+Data partition for machine learning - 30% testing and 70% training
