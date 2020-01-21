@@ -48,4 +48,6 @@ featureCounts -s 1 -T 12 -a *.gtf.gz -o featureCounts.summary *.bam
 
 module load bio/IGV
 
+igv.sh
+
 
