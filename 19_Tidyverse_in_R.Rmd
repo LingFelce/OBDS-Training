@@ -1,0 +1,104 @@
+# Tidyverse
+
+---
+title: "Untitled"
+author: "Connor Sweeney"
+date: "5 June 2019"
+output: html_document
+---
+
+
+##Read in counts data and meta data
+
+```{r}
+library(tidyverse)
+data_counts <- read_tsv("/t1-data/user/csweeney/obds/week4/obds_r/obds_countstable.csv")
+meta_data  <- read_tsv("/t1-data/user/csweeney/obds/week4/obds_r/obds_sampletable.csv")
+data_counts <- data_counts %>% gather(Sample, Counts, ERR1755082:ERR1755093)
+```
+
+
+## Obtain gene symbols from BiomaRt and add to data
+
+```{r}
+library(biomaRt)
+mouse       = useMart("ensembl", dataset = "mmusculus_gene_ensembl")
+annot_genes = getBM(attributes = c("ensembl_gene_id", "mgi_symbol","chromosome_name",'strand', "gene_biotype"), mart = mouse)
+data_counts <-  data_counts %>% 
+  left_join(annot_genes, by = c("Geneid" = "ensembl_gene_id")) %>% dplyr::select(-Geneid)
+```
+
+
+##Separate sample_title column and merge meta data with counts table
+
+```{r}
+meta_data <-  meta_data %>% separate(sample_title, c("gene_affected", "genotype", "cell_type", "replicate"), sep =  "_")
+colnames(data_counts) <- c("Sample_accession", "counts", "mgi_symbol", "chromosome_name", "strand", "gene_biotype")
+data_counts <-  data_counts %>% left_join(meta_data, by = "Sample_accession")
+data_counts <- data_counts[,-c(11:12)]
+data_counts <- data_counts %>% group_by(Sample_accession) %>% mutate(cpm = 1e6*counts/sum(counts))
+data_counts <- data_counts[,c(1,7,8,9,10,4,3,6,5,11,2,12)]
+data_counts$logcpm <- log2(data_counts$cpm + 0.25)
+```
+
+
+##Calculate no. reads per sample and plot
+
+```{r}
+sum_counts <- data_counts %>% group_by(Sample_accession) %>% summarise(num_reads = sum(counts))
+ggplot(data = sum_counts) +
+  geom_bar(mapping = aes(x=Sample_accession, y=num_reads), stat='identity')
+```
+
+
+```{r}
+gene_reads <- data_counts %>% group_by(mgi_symbol) %>% summarise(num_genes = sum(counts))
+x <- gene_reads[gene_reads$num_genes == 0,]
+nrow(x)
+#Or:
+data_counts %>% group_by(mgi_symbol) %>% summarise(num_genes = sum(counts)) %>% filter(num_genes == 0) %>% nrow
+```
+
+
+```{r}
+ggplot(data_counts, aes(x=logcpm, color=Sample_accession)) +
+  geom_density() +
+  geom_vline(data=data_counts, aes(xintercept=1),
+             linetype="dashed")
+```
+
+
+```{r}
+filtered <- data_counts %>% group_by(mgi_symbol) %>% filter(sum(cpm >= 0.5)>=3) 
+ggplot(filtered, aes(x=logcpm, color=Sample_accession)) +
+  geom_density() +
+  geom_vline(data=data_counts, aes(xintercept=1),
+             linetype="dashed")
+```
+
+
+```{r}
+filtered %>% filter(mgi_symbol %in% c("Cd4", "Cd8a"))
+CD4 <- filtered[filtered$mgi_symbol == "Cd4",] %>% na.omit
+CD8 <- filtered[filtered$mgi_symbol == "Cd8a",] %>% na.omit
+CD4_8 <- rbind(CD4, CD8)
+ggplot(data = CD4_8) +
+  geom_point(mapping = aes(x = mgi_symbol, y = logcpm, color = replicate), position = "jitter") +
+  facet_wrap(cell_type~genotype)
+```
+
+```{r}
+genotype <- data_counts %>% filter(mgi_symbol %in% c("Egr2", "Egr3"))
+ggplot(data = genotype) +
+  geom_point(mapping = aes(x = mgi_symbol, y = logcpm, color = replicate), position = "jitter") +
+  facet_wrap(cell_type~genotype)
+```
+
+
+```{r}
+counts <- data_counts %>% filter(mgi_symbol %in% c("Cd4", "Cd8a" , "Egr2", "Egr3", "Gzma", "Tbx21", "Myc", "Gata2"))
+counts <- counts %>% dplyr::select(Sample_accession, mgi_symbol, logcpm)
+data2 <-  counts %>% spread(Sample_accession, logcpm)
+rownames(data2) <- data2$mgi_symbol
+pheatmap(as.matrix(data2[,(2:13)]))
+```
