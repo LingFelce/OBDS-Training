@@ -18,6 +18,12 @@ Python decorators - @symbol - describes input and output files e.g:
 	@transform(split_chrom, suffix(<input files>), <output files>) 
 	def count_genes(input, output):
 	@merge(count_genes, suffix(<input files>), <output files>)
+	
+http://www.ruffus.org.uk/decorators/decorators.html
+transform is 1 input to 1 output
+collate is many input to few output
+subdivide many to even more
+
 General pipeline structure: documentation, import section, read parameters (.yml), define tasks (functions), _main_ (CGATcore command - run from command line)
 Can have different conda environment for each section of pipeline
 Look at slide for example of inside a task - very detailed!
