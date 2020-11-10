@@ -131,48 +131,6 @@ ls -l file #check permissions for file
 
 chmod 770 file #same as above but using octal notation instead of alphabetical
 
-d	r	w	x	r	w	x	r	w	x
-Owner	Group	Other
-Directory	Read	Write	Execute	Read	Write	Execute	Read	Write	Execute
-
-drwxr-xr-x
-A folder which has read, write and execute permissions for the owner, but only read and execute permissions for the group and for other users.
--rw-rw-rw-
-A file that can be read and written by anyone, but not executed at all.
--rw-r--r--
-A file that can be read and written by the user, but only read by the group and everyone else.
-
-HOME / BLOG / RUNNING A WEBSITE / UNIX AND LINUX / UNDERSTANDING FILE PERMISSIONS
-Understanding File Permissions
-24 APRIL 2001 / 14 COMMENTS
-
-One of the hardest things for the beginner webmaster to get to grips with is how to use chmod correctly to set permissions on files on UNIX and Linux web servers. You need to set the correct permissions on CGI scripts when you install them, to stop those dreaded “500 Server Error” messages.
-
-In this tutorial, I’m going to explain the concept of permissions, and show you how to set permissions using your FTP program or via SSH.
-
-
-What are permissions?
-On a UNIX web server, every single file and folder stored on the hard drive has a set of permissions associated with it, which says who is allowed to do what with the file. Every file (and folder) also has an “owner” and a “group” associated with it. If you created the file, then you are usually the owner of that file, and your group, or the group associated with the folder you created the file in, will usually be associated with that file.
-
-Who can do stuff?
-There are three types of people that can do stuff to files – the Owner of the file, anyone in the Group that the file belongs to, and Others (everyone else). In UNIX, these 3 types of people are referred to using the letters U (for Owner, or User in UNIX-speak!), G (for Group), and O (for Others).
-
-What stuff can you do?
-There are three basic things that can be done to files or folders:
-
-You can read the file. For folders, this means listing the contents of the folder.
-You can write to (change) the file. For folders, this means creating and deleting files in the folder.
-You can execute (run) the file, if it’s a program or script. For folders, this means accessing files in the folder.
-What do all these funny letters and numbers mean?!
-That’s the basics of permissions covered. As you can see, there’s not much to them really!
-
-The confusion often occurs when you have to start actually setting permissions on your file server. CGI scripts will tell you to do things like “chmod 755” or “Check that the file is executable”. Also, when you use FTP or SSH, you’ll see lots of funny letters next to the files (such as rwxrw-rw-). We’ll now explain what all these hieroglyphics mean!
-
-When you FTP to your web server, you’ll probably see something like this next to every file and folder:
-
-Attributes list
-This string of letters, drwxrwxrwx, represents the permissions that are set for this folder. (Note that these are often called attributes by FTP programs.) Let’s explain what each of these letters means:
-
 # d	r	w	x	r	w	x	r	w	x
 # Owner	Group	Other
 # Directory	Read	Write	Execute	Read	Write	Execute	Read	Write	Execute
